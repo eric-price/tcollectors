@@ -1,4 +1,4 @@
-#!/opt/monitoring/env/bin/python2.7
+#!/opt/monitoring/env-py3/bin/python3.6
 """Jaeger stats for TSDB"""
 
 import requests
@@ -6,16 +6,16 @@ import socket
 import time
 
 KEYS = frozenset([
-    "jaeger_collector_spans_saved_by_svc",
-    "jaeger_collector_traces_saved_by_svc"
+    "jaeger_collector_spans_saved_by_svc_total",
+    "jaeger_collector_traces_saved_by_svc_total"
     ])
 
 
 def get_metric():
     ip = socket.gethostname()
-    port = 14268
+    port = 14269
     r = requests.get("http://{0}:{1}/metrics".format(ip, port))
-    lines = r.content
+    lines = r.text
 
     return lines
 
@@ -31,8 +31,8 @@ def main():
                 if metric[0] in KEYS:
                     tag = metric[1].split("svc=")
                     tag = str(tag[1]).strip("}").strip('"')
-                    print("jaeger.{0} {1} {2} component={3}").format(
-                        metric[0], ts, value, tag)
+                    print("jaeger.{0} {1} {2} component={3}".format(
+                        metric[0], ts, value, tag))
 
         except Exception as e:
             print(e)
